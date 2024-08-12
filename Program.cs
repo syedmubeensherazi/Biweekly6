@@ -10,92 +10,72 @@ namespace SydneyHotel
     {
         class ReservationDetail
         {
-            public string CustomerName { get; set; }
-            public int Nights { get; set; }
-            public string RoomService { get; set; }
-            public double TotalPrice { get; set; }
-        }
+            public string customerName { get; set; }
+            public int nights { get; set; }
+            public string roomService { get; set; }
+            public double totalPrice { get; set; }
 
-        class PriceCalculator
+        }
+        // calulation of room services
+        //Pujan Budathoki
+        static double Price(int night, string isRoomService)
         {
-            public static double Price(int nights, string isRoomService)
-            {
-                double price = 0;
-                if (nights > 0 && nights <= 3)
-                    price = 100 * nights;
-                else if (nights > 3 && nights <= 10)
-                    price = 80.5 * nights;
-                else if (nights > 10 && nights <= 20)
-                    price = 75.3 * nights;
+            double price = 0;
+            if((night > 0 )&& (night <= 3))
+                price = 100*night; 
+            else if((night > 3 )&& (night <= 10))
+                price = 80.5*night; 
+            else if((night > 10 )&& (night <= 20))
+                price = 75.3*night;
+            //roomservice should be checked to lower yes
+            if(isRoomService.ToLower()=="yes")
+                return price+price*0.1;
+            else
+                return price;
 
-                if (isRoomService.ToLower() == "yes")
-                    return price + price * 0.1;
-                else
-                    return price;
-            }
         }
-
         static void Main(string[] args)
         {
             Console.WriteLine(".................Welcome to Sydney Hotel...............");
-            Console.Write("\nEnter no. of Customers: ");
+            Console.Write("\nEnter no. of Customer: ");
             int n = Convert.ToInt32(Console.ReadLine());
             Console.WriteLine("\n--------------------------------------------------------------------\n");
 
-            List<ReservationDetail> reservations = new List<ReservationDetail>();
+            ReservationDetail[] rd = new ReservationDetail[n];
 
-            for (int i = 0; i < n; i++)
+            for(int i = 0; i < n; i++)
             {
-                ReservationDetail detail = new ReservationDetail();
+                rd[i] = new ReservationDetail();
                 Console.Write("Enter customer name: ");
-                detail.CustomerName = Console.ReadLine();
+                rd[i].customerName=Console.ReadLine();
 
                 Console.Write("Enter the number of nights: ");
-                detail.Nights = Convert.ToInt32(Console.ReadLine());
-                while (!(detail.Nights > 0) && (detail.Nights <= 20))
+                rd[i].nights=Convert.ToInt32(Console.ReadLine());
+                if (!(rd[i].nights > 0) && (rd[i].nights <= 20))
                 {
-                    Console.Write("Number of nights must be between 1 to 20: ");
+                    Console.Write("Number of nights in between 1 to 20: ");
+
                     Console.Write("Enter the number of nights: ");
-                    detail.Nights = Convert.ToInt32(Console.ReadLine());
+                    rd[i].nights = Convert.ToInt32(Console.ReadLine());
                 }
 
-                Console.Write("Enter yes/no to indicate whether you want room service: ");
-                detail.RoomService = Console.ReadLine();
+                Console.Write("Enter yes/no to indicate wheather you want ta room service: ");
+                rd[i].roomService=Console.ReadLine();
 
-                detail.TotalPrice = PriceCalculator.Price(detail.Nights, detail.RoomService);
-                Console.WriteLine($"The total price for {detail.CustomerName} is ${detail.TotalPrice}");
+                rd[i].totalPrice = Price(rd[i].nights, rd[i].roomService);
+                Console.WriteLine($"The total price from {rd[i].customerName} is ${rd[i].totalPrice}");
                 Console.WriteLine("\n--------------------------------------------------------------------");
 
-                reservations.Add(detail);
             }
+    
+            var (minPrice,minindex) = rd.Select(x=>x.totalPrice).Select((m,i) => (m,i)).Min();
+            var (maxPrice,maxindex) = rd.Select(x => x.totalPrice).Select((m, i) => (m, i)).Max();
 
-            DisplayReservations(reservations);
-            DisplaySummary(reservations);
-        }
+            ReservationDetail maxrd = rd[maxindex];
+            ReservationDetail minrd =rd[minindex];
 
-        static void DisplayReservations(List<ReservationDetail> reservations)
-        {
-            foreach (var detail in reservations)
-            {
-                Console.WriteLine($"{detail.CustomerName}: {detail.TotalPrice}");
-            }
-        }
+            
 
-        static void DisplaySummary(List<ReservationDetail> reservations)
-        {
-            var minReservation = reservations.OrderBy(r => r.TotalPrice).First();
-            var maxReservation = reservations.OrderBy(r => r.TotalPrice).Last();
-
-            Console.WriteLine("\n\t\t\t\tSummary of reservation");
-            Console.WriteLine("--------------------------------------------------------------------\n");
-            Console.WriteLine("Name\t\tNumber of nights\t\tRoom service\t\tCharge");
-            Console.WriteLine($"{minReservation.CustomerName}\t\t{minReservation.Nights}\t\t\t{minReservation.RoomService}\t\t\t{minReservation.TotalPrice}");
-            Console.WriteLine($"{maxReservation.CustomerName}\t\t{maxReservation.Nights}\t\t\t{maxReservation.RoomService}\t\t\t{maxReservation.TotalPrice}");
-            Console.WriteLine("\n--------------------------------------------------------------------\n");
-            Console.WriteLine($"The customer spending most is {maxReservation.CustomerName} ${maxReservation.TotalPrice}");
-            Console.WriteLine($"The customer spending least is {minReservation.CustomerName} ${minReservation.TotalPrice}");
-            Console.WriteLine("Press any key to continue....");
-            Console.ReadLine();
         }
     }
 }
